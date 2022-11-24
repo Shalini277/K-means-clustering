@@ -1,0 +1,95 @@
+---
+title: "IPL Players Clusters Based on Performance"
+author: "Group 7 (Yashika Girdhar, Suyash, Prateek, Shalini, R.M. Rama Chidambram, Paras Nasa, Sunil T Samuel)"
+Date: 19/10/2022
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    section_number: true
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem Statement
+
+The bid amount (salary) of IPL players are not based on the performances of the player.
+
+## Analysis
+
+Perform the cluster analysis to group the players based on their performances, this would help us to understand if the bid amount of the players are based on their performance or not.
+
+## Cluster Analysis using R
+
+**Step 1: Library used of clustering**
+```{r Libraries used}
+library(dplyr)
+library(factoextra)
+library(cluster)
+```
+
+**Step 2: Import the data into R**
+```{r Data Import}
+iplcompdata<-read.csv("clipboard", sep = "\t", header = TRUE)
+ipldata1<-iplcompdata
+```
+
+**Step 3: Data Processing**
+```{r Data Processing}
+summary(ipldata1)
+str(ipldata1)
+```
+**Step 4: Normalize the data**
+```{r Normalize Data}
+ipldata2<-scale(ipldata1[,c(3:10)])
+```
+
+**Step 5: Using the plot check the number optimal number of cluster**
+```{r Plot}
+fviz_nbclust(ipldata2,kmeans,method="wss") + labs(subtitle = "Elbow Plot")
+fviz_nbclust(ipldata2,kmeans, method = "silhouette") + labs(subtitle ="Silhouette")
+```
+
+
+**Step 6: Cluster analysis with 3 clusters**
+```{r Kmeans Cluster Analysis}
+set.seed(1234)
+Group1<-kmeans(ipldata2,3,nstart = 100)
+Group1
+Group1$cluster
+Group1$centers
+```
+
+**Step 7: Include the group in the main data set**
+```{r Create Groups}
+ipldata1$Group<-Group1$cluster
+str(ipldata1$Group)
+ipldata1$Group<-factor(ipldata1$Group,levels = c(1,2,3),labels = c("Moderate Performer","Top Performer","Least Performer"))
+
+```
+
+
+```{r cols.print=9, rows.print=35, cols.min.print=9, pages.print=2}
+ipldata1
+```
+
+
+
+**Step 8: Plot the cluster**
+```{r Cluster Plot}
+clusplot(ipldata1,Group1$cluster,color = TRUE, shade = TRUE,
+         labels = 5,lines = 0)
+
+```
+
+
+## Inference
+
+Based on the bifurcation of the players in different groups created based on the cluster analysis, it is evident that some of the moderate and least performers are paid more when compared to the top performer, hence it can be concluded that the players salaries are not decided based on their previous performances
+
+
